@@ -36,12 +36,23 @@ In a program:
     GIF0.Encode(W, img, res)    a GIF89a file of one image
     GIF0.ReadInfo(R, info, res) the logical screen, the colour table, the number of images
     GIF0.NewImage(w, h)         an image to fill and encode
+    GIF0.DecodeBytes(data, n, limit, img, res)  the picture in data[0..n-1], at most limit pixels
+    GIF0.EncodeBytes(img, max, data, n, res)    into data[0..n-1], at most max bytes
+    GIF0.ReadInfoBytes(data, n, info, res)      the logical screen of the picture in data
 
 Decode reads GIF87a and GIF89a files and gives their first image (the first frame of an animation),
 with its global or local colour table, interlaced or not, on a picture of the size of the logical
 screen. Pixels outside the image and pixels of the transparent colour of its graphic control extension
 have alpha 0 (and red, green and blue 0). Data that ends early, or a code that is not in the table,
 ends the image where it is, as browsers show it; the pixels not decoded are transparent.
+
+The entry points ending in Bytes work in memory, on the files of Files.NewMemory and Files.FromBytes,
+and write no file. DecodeBytes refuses a picture of more than limit pixels (1 to MaxPixels) with
+tooLarge before it takes memory for the pixels; EncodeBytes gives tooLarge, data NIL and n 0 when the
+picture needs more than max bytes, and on success only data[0..n-1] holds it. Decode and Encode also
+refuse a picture whose width and height do not fit MaxPixels, or whose pix is smaller than they say.
+These versions need a polpo whose Files has NewMemory and whose compilers take HUGEINT (after polpo
+1.4.0).
 
 Encode writes one image with a global colour table. A picture of at most 256 colours keeps them
 exactly; pixels with alpha below 128 become transparent, which leaves 255 colours for the others. A
@@ -60,6 +71,7 @@ of Oberon System 3, GIFImages of Linux Oberon), which wrote no GIF files.
     desktop/GIF.Mod                                 package gif
     desktop/GIFImages.Mod                           package images-gif
     test/GIFTest.Mod, gifsuite.list, gifsuite.tgz
+    test/GIFMemoryTest.Mod
     test/GIFPicturesTest.Mod, test/GIFImagesTest.Mod  (they need the desktop's display)
 
 ## Tests
@@ -70,6 +82,14 @@ of Oberon System 3, GIFImages of Linux Oberon), which wrote no GIF files.
                                 expected result; a picture of 4096 colours made by the test, with and
                                 without transparent pixels, encoded with at most 256 colours, its
                                 transparency, and a mean difference of the components below 6
+    GIFMemoryTest.Run           18 checks: a picture of 8 by 8 with a transparent pixel encoded into
+                                memory and decoded again, the same bytes as through a rider; the
+                                pixel limit, the limit of the output, and data cut short, damaged or
+                                too large refused
+    GIFMemoryTest.Fixtures gifsuite.list
+                                134 checks: each picture of the list read with ReadInfoBytes and
+                                DecodeBytes and through a rider, the same results and pixels
+
     GIFPicturesTest.Run         3 checks: Pictures.Open of a picture of 256 colours and one with
                                 transparent pixels, their colours near those of GIF0; a picture written
                                 by GIF.Store read again with the colours of every pixel
