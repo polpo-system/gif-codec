@@ -1,7 +1,5 @@
 MODULE GIF0;  (** GIF pictures: decoding and encoding (one image), on Files *)
 
-(* VOC adaptation, 2026-10-31: bounded memory-file entry points and buffer validation. *)
-
 (** GIF87a and GIF89a. Decode reads the first image of a GIF file (of an animation, its first frame),
   with its global or local colour table, interlaced or not, with the transparent colour of its
   graphic control extension, into an Image of 8-bit red, green, blue and alpha of the size of the
@@ -308,7 +306,7 @@ PROCEDURE Decode*(VAR R: Files.Rider; VAR img: Image; VAR res: LONGINT);
 BEGIN DecodeLimited(R, MaxPixels, img, res) END Decode;
 
 (** inspect the logical prefix data[0..length), entirely in memory *)
-PROCEDURE ReadInfoBytes*(data: ARRAY OF CHAR; length: LONGINT; VAR info: Info; VAR res: LONGINT);
+PROCEDURE ReadInfoBytes*(VAR data: ARRAY OF CHAR; length: LONGINT; VAR info: Info; VAR res: LONGINT);
 VAR f: Files.File; R: Files.Rider;
 BEGIN
   f := Files.FromBytes(data, length);
@@ -318,7 +316,7 @@ END ReadInfoBytes;
 
 (** decode an in-memory prefix, enforcing pixelLimit on the complete canvas, including
     frame offsets; pixelLimit must be in 1..MaxPixels. No temporary files are created. *)
-PROCEDURE DecodeBytes*(data: ARRAY OF CHAR; length, pixelLimit: LONGINT; VAR img: Image; VAR res: LONGINT);
+PROCEDURE DecodeBytes*(VAR data: ARRAY OF CHAR; length, pixelLimit: LONGINT; VAR img: Image; VAR res: LONGINT);
 VAR f: Files.File; R: Files.Rider;
 BEGIN
   img := NIL;
