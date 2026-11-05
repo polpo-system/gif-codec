@@ -6,14 +6,14 @@ MODULE GIFPicturesTest;  (* loksh GIFPicturesTest.Run: GIF pictures through Pict
   pictures: c256.gif (256 colours), transp.gif (with a transparent colour). GIF.Store writes a picture
   that GIF0 reads back with the colours of every pixel of the Picture. *)
 
-IMPORT Files, Pictures, out, GIF0, GIF;
+IMPORT Files, Pictures, Out, GIF0, GIF;
 
 VAR checks, failed: LONGINT;
 
 PROCEDURE Check(what: ARRAY OF CHAR; ok: BOOLEAN);
 BEGIN
   INC(checks);
-  IF ~ok THEN INC(failed); out.String("FAIL "); out.String(what); out.Ln END
+  IF ~ok THEN INC(failed); Out.String("FAIL "); Out.String(what); Out.Ln END
 END Check;
 
 PROCEDURE Decode(name: ARRAY OF CHAR): GIF0.Image;
@@ -62,7 +62,7 @@ END MeanDiff;
 PROCEDURE Case(name: ARRAY OF CHAR);
 VAR d: LONGINT;
 BEGIN
-  d := MeanDiff(name); out.String(name); out.String(": mean difference "); out.Int(d, 0); out.String(" / 10"); out.Ln;
+  d := MeanDiff(name); Out.String(name); Out.String(": mean difference "); Out.Int(d, 0); Out.String(" / 10"); Out.Ln;
   Check(name, (d >= 0) & (d < 200))
 END Case;
 
@@ -90,7 +90,7 @@ PROCEDURE Run*;
 BEGIN
   checks := 0; failed := 0;
   Case("c256.gif"); Case("transp.gif"); Stored("c256.gif");
-  out.String("GIFPicturesTest: "); out.Int(checks, 0); out.String(" checks, "); out.Int(failed, 0); out.String(" failed"); out.Ln
+  Out.String("GIFPicturesTest: "); Out.Int(checks, 0); Out.String(" checks, "); Out.Int(failed, 0); Out.String(" failed"); Out.Ln
 END Run;
 
 END GIFPicturesTest.

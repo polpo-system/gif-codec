@@ -1,11 +1,11 @@
 MODULE gif;  (** GIF pictures in the console: information, conversion to and from PPM, PGM and PAM *)
 
-IMPORT Files, Texts, out, GIF0;
+IMPORT Files, Texts, Out, GIF0;
 
 CONST Max = 256;
 
 PROCEDURE Ln(s: ARRAY OF CHAR);
-BEGIN out.String(s); out.Ln
+BEGIN Out.String(s); Out.Ln
 END Ln;
 
 PROCEDURE Help*;
@@ -27,7 +27,7 @@ END Help;
 PROCEDURE Fail(name: ARRAY OF CHAR; res: LONGINT);
 VAR s: ARRAY 64 OF CHAR;
 BEGIN
-  GIF0.Message(res, s); out.String(name); out.String(": "); Ln(s)
+  GIF0.Message(res, s); Out.String(name); Out.String(": "); Ln(s)
 END Fail;
 
 PROCEDURE Int(VAR W: Files.Rider; x: LONGINT);
@@ -47,7 +47,7 @@ PROCEDURE Load(VAR name: ARRAY OF CHAR): GIF0.Image;
 VAR f: Files.File; R: Files.Rider; img: GIF0.Image; res: LONGINT;
 BEGIN
   f := Files.Old(name);
-  IF f = NIL THEN out.String(name); Ln(" not found"); RETURN NIL END;
+  IF f = NIL THEN Out.String(name); Ln(" not found"); RETURN NIL END;
   Files.Set(R, f, 0); GIF0.Decode(R, img, res); Files.Close(f);
   IF res # GIF0.ok THEN Fail(name, res); RETURN NIL END;
   RETURN img
@@ -60,17 +60,17 @@ BEGIN
   Texts.OpenArgs(A); any := FALSE;
   WHILE Texts.Arg(A, name) DO
     any := TRUE; f := Files.Old(name);
-    IF f = NIL THEN out.String(name); Ln(" not found")
+    IF f = NIL THEN Out.String(name); Ln(" not found")
     ELSE
       Files.Set(R, f, 0); GIF0.ReadInfo(R, info, res); Files.Close(f);
       IF res # GIF0.ok THEN Fail(name, res)
       ELSE
-        out.String(name); out.String(": "); out.Int(info.width, 0); out.String(" x "); out.Int(info.height, 0);
-        IF info.colors > 0 THEN out.String(", "); out.Int(info.colors, 0); out.String(" colours") END;
-        out.String(", "); out.Int(info.images, 0); IF info.images = 1 THEN out.String(" image") ELSE out.String(" images") END;
-        IF info.interlaced THEN out.String(", interlaced") END;
-        IF info.transparent THEN out.String(", transparent") END;
-        out.Ln
+        Out.String(name); Out.String(": "); Out.Int(info.width, 0); Out.String(" x "); Out.Int(info.height, 0);
+        IF info.colors > 0 THEN Out.String(", "); Out.Int(info.colors, 0); Out.String(" colours") END;
+        Out.String(", "); Out.Int(info.images, 0); IF info.images = 1 THEN Out.String(" image") ELSE Out.String(" images") END;
+        IF info.interlaced THEN Out.String(", interlaced") END;
+        IF info.transparent THEN Out.String(", transparent") END;
+        Out.Ln
       END
     END
   END;
@@ -110,7 +110,7 @@ BEGIN
   img := Load(src);
   IF img # NIL THEN
     Write(img, dst, alpha);
-    out.String(dst); out.String(": "); out.Int(img.width, 0); out.String(" x "); out.Int(img.height, 0); out.Ln
+    Out.String(dst); Out.String(": "); Out.Int(img.width, 0); Out.String(" x "); Out.Int(img.height, 0); Out.Ln
   END
 END Convert;
 
@@ -154,7 +154,7 @@ VAR f: Files.File; R: Files.Rider; w: ARRAY 32 OF CHAR; width, height, depth, ma
   img: GIF0.Image; c: CHAR;
 BEGIN
   f := Files.Old(name);
-  IF f = NIL THEN out.String(name); Ln(" not found"); RETURN NIL END;
+  IF f = NIL THEN Out.String(name); Ln(" not found"); RETURN NIL END;
   Files.Set(R, f, 0); Word(R, w); width := -1; height := -1; depth := 3; maxval := -1;
   IF (w = "P6") OR (w = "P5") THEN
     IF w = "P5" THEN depth := 1 END;
@@ -170,10 +170,10 @@ BEGIN
       ELSIF w = "TUPLTYPE" THEN Word(R, w)
       END
     END
-  ELSE out.String(name); Ln(": not a PPM, PGM or PAM picture"); RETURN NIL
+  ELSE Out.String(name); Ln(": not a PPM, PGM or PAM picture"); RETURN NIL
   END;
   IF (width <= 0) OR (height <= 0) OR (maxval # 255) OR (depth < 1) OR (depth > 4) OR (width > GIF0.MaxPixels DIV height) THEN
-    out.String(name); Ln(": only 8-bit grey, RGB or RGB_ALPHA pictures"); RETURN NIL
+    Out.String(name); Ln(": only 8-bit grey, RGB or RGB_ALPHA pictures"); RETURN NIL
   END;
   img := GIF0.NewImage(width, height); img.alpha := (depth = 2) OR (depth = 4);
   i := 0; n := width * height;
@@ -184,7 +184,7 @@ BEGIN
     IF img.alpha THEN Files.Read(R, img.pix[4 * i + 3]) ELSE img.pix[4 * i + 3] := 0FFX END;
     INC(i)
   END;
-  IF R.eof THEN out.String(name); Ln(": the picture data ends early"); RETURN NIL END;
+  IF R.eof THEN Out.String(name); Ln(": the picture data ends early"); RETURN NIL END;
   RETURN img
 END ReadPNM;
 
@@ -195,7 +195,7 @@ BEGIN
   GIF0.Encode(W, img, res);
   IF res # GIF0.ok THEN Fail(name, res)
   ELSE
-    Files.Register(f); out.String(name); out.String(": "); out.Int(Files.Length(f), 0); Ln(" bytes")
+    Files.Register(f); Out.String(name); Out.String(": "); Out.Int(Files.Length(f), 0); Ln(" bytes")
   END;
   Files.Close(f)
 END Save;

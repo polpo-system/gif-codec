@@ -4,14 +4,14 @@ MODULE GIFImagesTest;  (* loksh GIFImagesTest.Run: GIF pictures through Images; 
   transparent colour), inter.gif (interlaced). Images.Load gives the pixels of GIF0 (transparent ones
   with alpha 0); Images.Store writes them back, and GIF0 reads the same pixels again. *)
 
-IMPORT Files, Images, out, GIF0;
+IMPORT Files, Images, Out, GIF0;
 
 VAR checks, failed: LONGINT;
 
 PROCEDURE Check(what: ARRAY OF CHAR; ok: BOOLEAN);
 BEGIN
   INC(checks);
-  IF ~ok THEN INC(failed); out.String("FAIL "); out.String(what); out.Ln END
+  IF ~ok THEN INC(failed); Out.String("FAIL "); Out.String(what); Out.Ln END
 END Check;
 
 PROCEDURE Decode(name: ARRAY OF CHAR): GIF0.Image;
@@ -71,7 +71,7 @@ PROCEDURE Run*;
 BEGIN
   checks := 0; failed := 0;
   ImagesCase("c256.gif"); ImagesCase("transp.gif"); ImagesCase("inter.gif");
-  out.String("GIFImagesTest: "); out.Int(checks, 0); out.String(" checks, "); out.Int(failed, 0); out.String(" failed"); out.Ln
+  Out.String("GIFImagesTest: "); Out.Int(checks, 0); Out.String(" checks, "); Out.Int(failed, 0); Out.String(" failed"); Out.Ln
 END Run;
 
 END GIFImagesTest.
